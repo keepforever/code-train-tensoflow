@@ -4,9 +4,12 @@
   "private": true,
   "dependencies": {
     "@tensorflow/tfjs": "^0.12.2",
+    "d3": "^5.5.0",
+    "queue": "^4.4.2",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
-    "react-scripts": "1.1.4"
+    "react-scripts": "1.1.4",
+    "topojson": "^3.0.2"
   },
   "scripts": {
     "start": "react-scripts start",
