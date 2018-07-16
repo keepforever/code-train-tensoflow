@@ -1,25 +1,13 @@
 import React, { Component } from 'react';
 import * as topojson from 'topojson';
 import * as d3 from 'd3';
+import { queue } from 'd3-queue';
+
+import usData from "./us.json";
+import usCongress from './us-congress-113.json';
 
 class DeeThree extends Component {
 
-  state = {
-    usData: null,
-    usCongress: null
-  }
-
-  componentWillMount() {
-    d3.queue()
-      .defer(d3.json, "us.json")
-      .defer(d3.json, 'us-congress-113.json')
-      .await((error, usData, usCongress)  => {
-        this.setState({
-          usData,
-          usCongress
-        });
-      });
-  }
 
   componentDidUpdate() {
     const svg = d3.select(this.refs.anchor)
@@ -33,8 +21,8 @@ class DeeThree extends Component {
     const path = d3.geoPath(projection);
 
     //copy paste code is expecting vars to be named differently, rename here:
-    const us = this.state.usData
-    const congress = this.state.usCongress
+    const us = usData
+    const congress = usCongress
 
     svg.append("defs").append("path")
       .attr("id", "land")
@@ -68,12 +56,15 @@ class DeeThree extends Component {
   }
 
   render () {
-    const { usData, usCongress } = this.state
+
     if(!usData || !usCongress) {
       return <h1>Loading...</h1>
     }
-    return <g ref="anchor" />
+    return (
+      <svg ref="anchor" width="100%" height="200px" style={{border: '1px solid red'}}>
 
+      </svg>
+    )
   }
 }
 
