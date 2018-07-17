@@ -1,6 +1,5 @@
 import React, { Component } from "react";
-
-
+import { range as d3Range } from "d3";
 import * as tf from "@tensorflow/tfjs";
 
 import data from "../colorData.json";
@@ -12,6 +11,32 @@ class AlphaTensorflow extends Component {
       const { tensorData } = this.props;
       //console.log('updateData fired', data)
       tensorData(data);
+    };
+
+    const makePrediction = async () => {
+      const rgb = d3Range(3).map(v => {
+        return (255 * Math.random()).toFixed(0)
+      })
+      console.log('rgb', rgb)
+
+      const novelInput = tf.tensor2d([
+        [rgb[0], rgb[1], rgb[2]]
+      ])
+
+      let results = model.predict(novelInput)
+      console.log('results', results)
+      results.print()
+
+      let index = results.argMax(1)
+      index.print()
+      // index is a tensor, use .dataSync() to extract int
+      let indexInt = await index.data()
+      console.log(`
+        Your Prediction is:
+        ${labelList[indexInt]}
+
+        `)
+
     };
     //console.log(this.props)
     //console.log(data)
@@ -87,7 +112,7 @@ class AlphaTensorflow extends Component {
       await model.fit(xs, ys, {
         shuffle: true,
         validationSplit: 0.1,
-        epochs: 10,
+        epochs: 2,
         callbacks: {
           onEpochEnd: (epoch, logs) => {
             console.log(`${epoch} epoch ended`);
@@ -99,8 +124,8 @@ class AlphaTensorflow extends Component {
             lossX.push(epoch + 1);
             lossP.push("Loss: " + logs.loss.toFixed(5));
           },
-          onBatchEnd: async (batch, logs) => {
-            await tf.nextFrame();
+          onBatchEnd: (batch, logs) => {
+            return tf.nextFrame();
           },
           onTrainEnd: () => {
             console.log("finished");
@@ -110,10 +135,14 @@ class AlphaTensorflow extends Component {
       });
     }
 
-    const { shouldTrain } = this.props
+    const { shouldTrain, shouldPredict } = this.props
     if(shouldTrain) {
       console.log('training beginning...')
       train();
+    }
+
+    if(shouldPredict) {
+      makePrediction()
     }
 
 

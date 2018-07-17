@@ -11,7 +11,8 @@ import MuiThemeProvider from "material-ui/styles/MuiThemeProvider";
 class App extends Component {
   state = {
     tensorData: [],
-    shouldTrain: false
+    shouldTrain: false,
+    shouldPredict: false
   };
 
   passDataUp = data => {
@@ -42,7 +43,6 @@ class App extends Component {
       console.log('timeout')
       this.stopTraining();
     }, 3000 )
-
   };
   // helper func to only train once
   stopTraining = () => {
@@ -51,8 +51,25 @@ class App extends Component {
     });
   };
 
+  predictButtonHandler = () => {
+    this.setState({
+      shouldPredict: !this.state.shouldTrain
+    });
+    // so as to only train once.
+    setTimeout(() => {
+      console.log('timeout')
+      this.stopPredicting();
+    }, 1000 )
+  };
+  // helper func to only train once
+  stopPredicting = () => {
+    this.setState({
+      shouldPredict: false
+    });
+  };
+
   render() {
-    const { shouldTrain, tensorData } = this.state
+    const { shouldTrain, tensorData, shouldPredict } = this.state
     // console.log('APP.JS, shouldTrain', shouldTrain)
     // console.log('APP.JS, tensorData', tensorData)
     return (
@@ -66,7 +83,6 @@ class App extends Component {
             <RaisedButton
               label={"TRAIN CLASSIFIER"}
               style={{
-                color: "blue",
                 marginTop: 25,
                 width: 300,
                 height: 100
@@ -74,11 +90,22 @@ class App extends Component {
               secondary={false}
               onClick={this.trainModelButtonHandler}
             />
+            <RaisedButton
+              label={"MAKE PREDICTION"}
+              style={{
+                marginTop: 25,
+                width: 300,
+                height: 100
+              }}
+              secondary={true}
+              onClick={this.predictButtonHandler}
+            />
             <ThetaD3Barchart
               tensorData={tensorData} />
             {/* <DeeThree /> */}
             <AlphaTensorflow
                shouldTrain={shouldTrain}
+               shouldPredict={shouldPredict}
                tensorData={this.passDataUp}
                data={this.state.tensorData}
              />
