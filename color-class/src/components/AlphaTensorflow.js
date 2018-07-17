@@ -1,23 +1,27 @@
 import React, { Component } from "react";
 
-import * as tf from '@tensorflow/tfjs'
+
+import * as tf from "@tensorflow/tfjs";
 
 import data from "../colorData.json";
 
-class Alpha extends Component {
+class AlphaTensorflow extends Component {
 
   render() {
+    const updateData = data => {
+      const { tensorData } = this.props;
+      //console.log('updateData fired', data)
+      tensorData(data);
+    };
+    //console.log(this.props)
     //console.log(data)
     let model;
     let xs, ys;
-    //let rSlider, gSlider, bSlider;
     let lossP = [];
-    //let labelP;
-    //let canvas;
-    //let graph;
     let lossX = [];
     let lossY = [];
     let accY = [];
+
 
     let labelList = [
       "red-ish",
@@ -41,15 +45,13 @@ class Alpha extends Component {
       labels.push(labelList.indexOf(record.label));
     }
 
-
-
     xs = tf.tensor2d(colors);
     let labelsTensor = tf.tensor1d(labels, "int32");
 
     ys = tf.oneHot(labelsTensor, 9).cast("float32");
     labelsTensor.dispose();
 
-    console.log(xs)
+    //console.log(xs)
 
     function buildModel() {
       let md = tf.sequential();
@@ -88,8 +90,10 @@ class Alpha extends Component {
         epochs: 10,
         callbacks: {
           onEpochEnd: (epoch, logs) => {
-            console.log(epoch);
-            console.log(logs.val_loss.toFixed(2))
+            console.log(`${epoch} epoch ended`);
+            // pass training data up component tree
+            //updateData(logs.val_loss.toFixed(2));
+            // console.log(logs.val_loss.toFixed(2))
             lossY.push(logs.val_loss.toFixed(2));
             accY.push(logs.val_acc.toFixed(2));
             lossX.push(epoch + 1);
@@ -100,27 +104,32 @@ class Alpha extends Component {
           },
           onTrainEnd: () => {
             console.log("finished");
+            updateData(lossY)
           }
         }
       });
     }
-    console.log('lossY', lossY)
 
-    train();
+    const { shouldTrain } = this.props
+    if(shouldTrain) {
+      console.log('training beginning...')
+      train();
+    }
+
 
     return (
-      <div>
-        <h1>Alpha</h1>
+
         <div>
-          <h1>x</h1>
-          <h3>x</h3>
-          <h3>x</h3>
-          <h3>x</h3>
+          <h1>AlphaTensorflow</h1>
+          <div>
+            {this.props.data.map((loss, index) => {
+              return <h4 key={index}>lossY {index}: {loss}</h4>
+            })}
+          </div>
         </div>
 
-      </div>
     );
   }
 }
 
-export default Alpha;
+export default AlphaTensorflow;
