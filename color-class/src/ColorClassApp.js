@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import logo from "./logo.svg";
 import "./App.css";
-import AlphaTensorflow from "./components/AlphaTensorflow";
+import ColorClassTensorflow from "./components/ColorClassTensorflow";
 import ThetaD3Barchart from "./components/ThetaD3Barchart";
 
 import RaisedButton from "material-ui/RaisedButton";
@@ -85,7 +85,7 @@ class App extends Component {
               style={{
                 marginTop: 25,
                 width: 300,
-                height: 100
+                height: 75
               }}
               secondary={false}
               onClick={this.trainModelButtonHandler}
@@ -95,21 +95,19 @@ class App extends Component {
               style={{
                 marginTop: 25,
                 width: 300,
-                height: 100
+                height: 75
               }}
               secondary={true}
               onClick={this.predictButtonHandler}
             />
-            <ThetaD3Barchart
-              tensorData={tensorData} />
-            {/* <DeeThree /> */}
-            <AlphaTensorflow
+            <ColorClassTensorflow
                shouldTrain={shouldTrain}
                shouldPredict={shouldPredict}
                tensorData={this.passDataUp}
                data={this.state.tensorData}
              />
-            {/* <Alpha_Tensorflow  tensorData={this.passDataUp}/> */}
+             {/* <ThetaD3Barchart
+               tensorData={tensorData} /> */}
           </div>
         </div>
       </MuiThemeProvider>

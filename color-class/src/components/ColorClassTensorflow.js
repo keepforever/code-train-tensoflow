@@ -4,7 +4,7 @@ import * as tf from "@tensorflow/tfjs";
 
 import data from "../colorData.json";
 
-class AlphaTensorflow extends Component {
+class ColorClassTensorflow extends Component {
 
   render() {
     const updateData = data => {
@@ -13,17 +13,21 @@ class AlphaTensorflow extends Component {
       tensorData(data);
     };
 
-    const makePrediction = async () => {
-      const rgb = d3Range(3).map(v => {
-        return (255 * Math.random()).toFixed(0)
-      })
-      console.log('rgb', rgb)
+    const rgb = d3Range(3).map(v => {
+      return (255 * Math.random()).toFixed(0)
+    })
 
+    console.log('rgb', rgb)
+
+    const makePrediction = async (rgb) => {
+      rgb.map(v => console.log('rgb', v))
       const novelInput = tf.tensor2d([
         [rgb[0], rgb[1], rgb[2]]
       ])
 
-      let results = model.predict(novelInput)
+      let loadedModel = await tf.loadModel('localstorage://my-model-1');
+
+      let results = loadedModel.predict(novelInput)
       console.log('results', results)
       results.print()
 
@@ -59,8 +63,6 @@ class AlphaTensorflow extends Component {
       "brown-ish",
       "grey-ish"
     ];
-    // put data into arrays to be
-    //ultimatly made into tensors with tf
 
     let colors = [];
     let labels = [];
@@ -76,12 +78,10 @@ class AlphaTensorflow extends Component {
     ys = tf.oneHot(labelsTensor, 9).cast("float32");
     labelsTensor.dispose();
 
-    //console.log(xs)
-
     function buildModel() {
       let md = tf.sequential();
       const hidden = tf.layers.dense({
-        units: 15,
+        units: 20,
         inputShape: [3],
         activation: "sigmoid"
       });
@@ -112,7 +112,7 @@ class AlphaTensorflow extends Component {
       await model.fit(xs, ys, {
         shuffle: true,
         validationSplit: 0.1,
-        epochs: 2,
+        epochs: 10,
         callbacks: {
           onEpochEnd: (epoch, logs) => {
             console.log(`${epoch} epoch ended`);
@@ -127,9 +127,11 @@ class AlphaTensorflow extends Component {
           onBatchEnd: (batch, logs) => {
             return tf.nextFrame();
           },
-          onTrainEnd: () => {
+          onTrainEnd: async () => {
             console.log("finished");
             updateData(lossY)
+            const saveResult = await model.save('localstorage://my-model-1');
+            console.log('saveResult', saveResult)
           }
         }
       });
@@ -142,23 +144,32 @@ class AlphaTensorflow extends Component {
     }
 
     if(shouldPredict) {
-      makePrediction()
+      makePrediction([81,183,155])
     }
-
 
     return (
 
-        <div>
-          <h1>AlphaTensorflow</h1>
-          <div>
+        <div >
+          <h1>ColorClassTensorflow</h1>
+          <div style={{
+            height: 100,
+            backgroundColor: `rgb(81,183,155 )`
+          }}> <h2>green-ish</h2> </div>
+          {/* <div style={{
+            height: 100,
+            backgroundColor: `rgb( ${rgb} )`
+          }}>
+            <h2>current color</h2>
+          </div> */}
+          {/* <div>
             {this.props.data.map((loss, index) => {
               return <h4 key={index}>lossY {index}: {loss}</h4>
             })}
-          </div>
+          </div> */}
         </div>
 
     );
   }
 }
 
-export default AlphaTensorflow;
+export default ColorClassTensorflow;
